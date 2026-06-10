@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0c13">
+    <meta name="description" content="Painel de Gestão - Baile de Gala Dom Pedro II 2026">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Baile 2026">
+
+    <title>Baile Dom Pedro II - Gestão 2026</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap');
+
+        :root {
+            --gold:      #c8a45a;
+            --gold-soft: #e2c789;
+            --gold-deep: #9c7c3a;
+            --gold-glow: rgba(200,164,90,0.35);
+        }
+
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; touch-action: manipulation; }
+
+        html, body {
+            height: 100%; width: 100%;
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #121214;
+            color: #e1e1e6;
+            overflow: hidden;
+        }
+
+        /* ── Identidade Imperial ── */
+        .font-display { font-family: 'Playfair Display', serif; letter-spacing: 0.01em; }
+
+        .gold-text {
+            background: linear-gradient(120deg, var(--gold-soft), var(--gold) 45%, var(--gold-deep));
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+        }
+
+        .gold-btn {
+            background: linear-gradient(135deg, var(--gold-soft), var(--gold) 55%, var(--gold-deep)) !important;
+            color: #1c1404 !important;
+            border: none !important;
+            box-shadow: 0 8px 22px -8px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+            transition: filter 0.18s ease, transform 0.12s ease !important;
+        }
+        .gold-btn:hover  { filter: brightness(1.07); }
+        .gold-btn:active { filter: brightness(0.93); transform: translateY(1px); }
+
+        .gold-ring { box-shadow: inset 0 0 0 1px rgba(200,164,90,0.30); }
+        .hairline-gold { box-shadow: inset 0 1px 0 rgba(200,164,90,0.16); }
+
+        ::selection { background: var(--gold-glow); color: #fff; }
+
+        /* Foco dourado unificado em todos os campos (sobrepõe o ring azul) */
+        input:focus, select:focus, textarea:focus { --tw-ring-color: rgba(200,164,90,0.9) !important; }
+
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* ── Animações Gerais ── */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+
+        /* ── Animações do Loading Premium ── */
+        @keyframes spin-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        .animate-\[spin_3s_linear_infinite_reverse\] {
+            animation: spin-reverse 3s linear infinite;
+        }
+
+        /* ── Animações Premium dos Pinos ── */
+        @keyframes ripple-wave { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; } 100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; } }
+        @keyframes ripple-wave2 { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.40; } 100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } }
+        @keyframes ripple-wave3 { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.25; } 100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } }
+        @keyframes pin-breathe { 0%, 100% { box-shadow: var(--pin-glow), 0 4px 12px rgba(0,0,0,0.5); } 50% { box-shadow: var(--pin-glow-strong), 0 4px 12px rgba(0,0,0,0.5); } }
+
+        /* ── Pinos de Mesa ── */
+        .table-pin {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            z-index: 10;
+            cursor: pointer;
+            animation: pin-breathe 2.8s ease-in-out infinite;
+        }
+        .table-pin:active { transform: translate(-50%, -50%) scale(0.88) !important; }
+        .table-pin:hover { transform: translate(-50%, -50%) scale(1.15) !important; filter: brightness(1.15); z-index: 50; }
+        .table-pin:hover .wave, .table-pin:active .wave { display: none; }
+
+        .wave {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 1.5px solid;
+            pointer-events: none;
+        }
+        .wave-1 { animation: ripple-wave  2.4s ease-out infinite; }
+        .wave-2 { animation: ripple-wave2 2.4s ease-out infinite 0.6s; }
+        .wave-3 { animation: ripple-wave3 2.4s ease-out infinite 1.2s; }
+
+        .table-pin .pin-num {
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            z-index: 2;
+        }
+        .table-pin .pin-id {
+            font-size: 8px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            max-width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-top: -2px;
+            z-index: 2;
+        }
+
+        /* ── Área do Mapa e Sistema de Zoom ── */
+        .map-wrapper {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none;
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+        }
+        .map-wrapper::-webkit-scrollbar { display: none; }
+
+        #zoom-wrapper {
+            transition: width 0.15s ease-out, height 0.15s ease-out;
+        }
+        #zoom-target {
+            transform-origin: top left;
+            transition: transform 0.15s ease-out;
+            will-change: transform;
+        }
+
+        /* ── Outros Componentes ── */
+        .bottom-sheet {
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bottom-sheet.active { transform: translateY(0); }
+
+        .overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+
+        input:disabled, select:disabled, textarea:disabled {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            color: #a1a1aa !important;
+            cursor: default;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+        .toast {
+            position: fixed;
+            top: 1rem; left: 50%;
+            transform: translateX(-50%) translateY(-120%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 300;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        @supports (padding: max(0px)) {
+            .pt-safe { padding-top: max(0.5rem, env(safe-area-inset-top)); }
+            .pb-safe { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+        }
+
+        .install-banner {
+            transform: translateY(-150%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .install-banner.show { transform: translateY(0); }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden bg-[#121214]">
+
+    <div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500 bg-[#0a0c13]/95 backdrop-blur-md">
+        <div class="relative flex items-center justify-center mb-8">
+            <div class="absolute w-28 h-28 border-t border-b border-[#c8a45a]/70 rounded-full animate-[spin_2s_linear_infinite]"></div>
+            <div class="absolute w-32 h-32 border-l border-r border-[#c8a45a]/30 rounded-full animate-[spin_3s_linear_infinite_reverse]"></div>
+            <div class="absolute w-20 h-20 bg-[#c8a45a]/15 rounded-full animate-pulse blur-xl"></div>
+
+            <img src="icon-192.png"
+                 alt="Brasão Dom Pedro II"
+                 class="h-16 w-16 object-cover rounded-2xl relative z-10 drop-shadow-[0_0_18px_rgba(200,164,90,0.35)]">
+        </div>
+        <h2 class="font-display gold-text text-2xl font-bold tracking-wide">Dom Pedro II</h2>
+        <p class="text-gray-500 text-[10px] mt-2.5 uppercase tracking-[0.35em] animate-pulse">Preparando o Salão</p>
+    </div>
+
+    <div id="auth-modal" class="overlay fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div class="bg-gray-900 p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-[#c8a45a]/20 text-center" id="auth-content">
+            <div class="w-16 h-16 bg-[#c8a45a]/15 border border-[#c8a45a]/30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <i class="ph ph-lock-key text-3xl text-[#c8a45a]"></i>
+            </div>
+            <h2 class="font-display text-2xl font-bold text-white mb-2">Acesso Restrito</h2>
+            <p class="text-gray-400 text-sm mb-8">Digite a senha para gerenciar as mesas.</p>
+            
+            <input
+                type="password"
+                id="auth-password"
+                maxlength="12"
+                onkeydown="if(event.key==='Enter') authenticate()"
+                class="w-full bg-gray-800 border border-gray-700 text-white rounded-xl focus:ring-2 focus:border-transparent block p-4 outline-none text-center text-lg tracking-widest transition-all mb-2"
+                placeholder="••••••••"
+                aria-label="Senha de acesso">
+                
+            <p id="auth-error" class="text-red-400 text-sm font-medium hidden mb-4">Senha incorreta. Tente novamente.</p>
+            <div class="flex gap-3 mt-4">
+                <button onclick="closeAuthModal()" class="flex-1 py-3 text-sm font-semibold text-gray-300 bg-gray-800 rounded-xl hover:bg-gray-700 transition-colors active:bg-gray-600">
+                    Cancelar
+                </button>
+                <button onclick="authenticate()" class="gold-btn flex-1 font-bold py-3 rounded-xl">
+                    Desbloquear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="install-banner" class="install-banner fixed left-4 right-4 z-[90] shadow-2xl top-4 pt-safe">
+        <div class="bg-gradient-to-r from-[#1c1c20] to-[#25231c] border border-[#c8a45a]/40 rounded-2xl p-4 flex items-center gap-3 shadow-[0_8px_32px_rgba(200,164,90,0.20)]">
+            <img src="icon-192.png" alt="Ícone" class="w-12 h-12 rounded-xl flex-shrink-0 shadow-md">
+            <div class="flex-1 min-w-0">
+                <p class="text-white font-bold text-sm leading-tight">Instalar App</p>
+                <p class="text-gray-400 text-xs mt-0.5">Adicionar à tela inicial</p>
+            </div>
+            <button
+                onclick="if(typeof installApp === 'function') installApp();"
+                class="gold-btn px-4 py-2.5 rounded-xl text-sm font-bold flex-shrink-0">
+                Instalar
+            </button>
+            <button
+                onclick="document.getElementById('install-banner').classList.remove('show'); localStorage.setItem('install_dismissed', 'true');"
+                class="text-gray-500 hover:text-gray-300 p-1 flex-shrink-0 transition-colors"
+                aria-label="Fechar banner">
+                <i class="ph ph-x text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <header class="bg-[#1c1c20] pt-safe px-4 pb-3 border-b border-[#c8a45a]/15 z-10 flex-shrink-0 shadow-lg mt-14 hairline-gold">
+        <div class="flex justify-between items-center mt-2">
+            <div class="flex items-center gap-3">
+                <img src="icon-192.png" alt="Logo" class="w-12 h-12 rounded-xl shadow-lg border border-[#c8a45a]/40 object-cover">
+                <div>
+                    <h1 class="font-display text-lg font-bold gold-text leading-tight">Baile Dom Pedro II</h1>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-[0.25em] mt-0.5">Gestão 2026</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button
+                    onclick="showAuthModal()"
+                    id="btn-unlock"
+                    class="w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-[#c8a45a] rounded-full border border-[#c8a45a]/25 shadow-md active:bg-gray-600 transition-colors"
+                    aria-label="Desbloquear acesso de edição">
+                    <i class="ph ph-lock-key text-lg"></i>
+                </button>
+                <div id="badge-unlocked" class="hidden items-center gap-1.5 bg-[#c8a45a]/15 text-[#e2c789] px-3 py-1.5 rounded-full border border-[#c8a45a]/30 text-xs font-bold">
+                    <i class="ph ph-crown-simple"></i> Admin
+                </div>
+            </div>
+        </div>
+
+        <div class="flex overflow-x-auto no-scrollbar gap-2 mt-4 pb-1">
+            <div class="flex-shrink-0 flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700 text-[11px] whitespace-nowrap">
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div> Livre
+            </div>
+            <div class="flex-shrink-0 flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700 text-[11px] whitespace-nowrap">
+                <div class="w-2.5 h-2.5 rounded-full bg-purple-500"></div> Negociação
+            </div>
+            <div class="flex-shrink-0 flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700 text-[11px] whitespace-nowrap">
+                <div class="w-2.5 h-2.5 rounded-full bg-orange-500"></div> Reservada
+            </div>
+            <div class="flex-shrink-0 flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700 text-[11px] whitespace-nowrap">
+                <div class="w-2.5 h-2.5 rounded-full bg-cyan-500"></div> Patrocínio
+            </div>
+            <div class="flex-shrink-0 flex items-center gap-1.5 bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700 text-[11px] whitespace-nowrap">
+                <div class="w-2.5 h-2.5 rounded-full bg-gray-400"></div> Bloqueada
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 relative overflow-hidden flex flex-col">
+
+        <div id="tab-list" class="absolute inset-0 overflow-y-auto no-scrollbar p-4 flex flex-col gap-4 animate-fade-in bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: linear-gradient(rgba(18, 18, 20, 0.75), rgba(18, 18, 20, 0.90)), url('https://drive.google.com/thumbnail?id=1WRlxgq7kkbsMZj1koLKcih9kl7FfqfVR&sz=w1500');">
+            <div class="relative sticky top-0 bg-[#121214] z-10 pb-2">
+                <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg pointer-events-none"></i>
+                <input
+                    type="text"
+                    id="search-input"
+                    onkeyup="filterList()"
+                    placeholder="Buscar mesa ou responsável..."
+                    class="w-full bg-[#1c1c20] border border-gray-800 text-white rounded-2xl pl-11 pr-4 py-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition-all"
+                    aria-label="Buscar mesas">
+            </div>
+            <div id="list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-24">
+                </div>
+        </div>
+
+        <div id="tab-map" class="absolute inset-0 hidden overflow-hidden bg-[#111113]">
+            
+            <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full text-white text-[11px] flex items-center gap-2 pointer-events-none shadow-lg animate-pulse">
+                <i class="ph ph-hand-swipe-left text-lg"></i>
+                <span>Faça pinça para Zoom</span>
+            </div>
+
+            <div class="absolute bottom-24 right-4 z-30 flex flex-col gap-2">
+                <button onclick="changeZoom(0.2)" class="w-10 h-10 bg-gray-800/90 backdrop-blur border border-gray-600 rounded-full text-white flex items-center justify-center shadow-xl active:scale-95 transition-transform" aria-label="Aumentar Zoom">
+                    <i class="ph ph-magnifying-glass-plus text-xl"></i>
+                </button>
+                <button onclick="changeZoom(-0.2)" class="w-10 h-10 bg-gray-800/90 backdrop-blur border border-gray-600 rounded-full text-white flex items-center justify-center shadow-xl active:scale-95 transition-transform" aria-label="Diminuir Zoom">
+                    <i class="ph ph-magnifying-glass-minus text-xl"></i>
+                </button>
+                <button onclick="fitZoom()" class="w-10 h-10 bg-[#c8a45a] border border-[#e2c789] text-[#1c1404] flex items-center justify-center shadow-xl active:scale-95 transition-transform rounded-full" aria-label="Ver tudo">
+                    <i class="ph ph-corners-out text-xl"></i>
+                </button>
+            </div>
+
+            <div class="map-wrapper w-full h-full pb-20 pt-4" id="map-container"> 
+                
+                <div id="zoom-wrapper" style="width: 1414px; height: 1000px; margin: 0 auto;">
+                    
+                    <div id="zoom-target" class="relative" style="width:1414px; height:1000px;">
+                        
+                        <img src="https://drive.google.com/thumbnail?id=1XA47nT-LdQx1V9zhwsqit7Fx-emr-j59&sz=w2500" 
+                             alt="Planta Arquitetônica"
+                             class="absolute inset-0 w-full h-full object-contain pointer-events-none z-0"
+                             onerror="this.style.display='none'; document.getElementById('map-fallback').style.display='flex';">
+                        
+                        <div id="map-fallback" class="hidden absolute inset-0 bg-gray-900 border border-gray-700 items-center justify-center flex-col gap-3 p-8 text-center rounded-2xl m-4">
+                            <i class="ph ph-image-broken text-5xl text-gray-600"></i>
+                            <p class="text-gray-400 text-sm font-medium">Não foi possível carregar a imagem do Drive.</p>
+                        </div>
+
+                        <div id="pins-layer" class="absolute inset-0 z-10"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bg-[#1c1c20] border-t border-[#c8a45a]/15 flex justify-around pb-safe pt-2 px-2 z-20 absolute bottom-0 w-full h-[62px] shadow-2xl">
+        <button onclick="switchTab('list')" id="nav-list"
+            class="flex-1 flex flex-col items-center justify-center text-[#c8a45a] py-1 rounded-lg transition-colors"
+            aria-label="Lista de mesas">
+            <i class="ph-fill ph-list-dashes text-2xl mb-0.5"></i>
+            <span class="text-[10px] font-semibold">Lista</span>
+        </button>
+        <button onclick="switchTab('map')" id="nav-map"
+            class="flex-1 flex flex-col items-center justify-center text-gray-500 hover:text-gray-300 py-1 rounded-lg transition-colors"
+            aria-label="Planta do evento">
+            <i class="ph ph-map-trifold text-2xl mb-0.5"></i>
+            <span class="text-[10px] font-semibold">Planta</span>
+        </button>
+        <button onclick="toggleSync()" id="nav-sync"
+            class="flex-1 flex flex-col items-center justify-center text-gray-500 hover:text-gray-300 py-1 rounded-lg transition-colors"
+            aria-label="Sincronizar dados">
+            <i class="ph ph-arrow-clockwise text-2xl mb-0.5"></i>
+            <span class="text-[10px] font-semibold">Sync</span>
+        </button>
+    </nav>
+
+    <div id="sheet-overlay" onclick="closeSheet()" class="overlay fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"></div>
+
+    <div id="bottom-sheet" class="bottom-sheet fixed inset-x-0 bottom-0 bg-[#1c1c20] border-t border-gray-800 rounded-t-3xl z-50 flex flex-col max-h-[92vh] pb-safe shadow-2xl">
+
+        <div class="w-full flex justify-center pt-3 pb-2 cursor-pointer" onclick="closeSheet()">
+            <div class="w-12 h-1.5 bg-gray-600 rounded-full hover:bg-gray-500 transition-colors"></div>
+        </div>
+
+        <div class="px-6 py-4 flex justify-between items-center border-b border-gray-800/50">
+            <div class="flex items-center gap-3">
+                <div id="sheet-status-indicator" class="w-4 h-4 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.5)]"></div>
+                <div>
+                    <h3 class="font-display text-2xl font-bold text-white" id="sheet-title">Mesa 00</h3>
+                    <span id="edit-badge" class="hidden text-[10px] uppercase font-bold text-[#c8a45a] mt-0.5 tracking-wider">Modo Edição Ativo</span>
+                </div>
+            </div>
+            <button onclick="closeSheet()" class="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-full active:bg-gray-600 transition-colors" aria-label="Fechar">
+                <i class="ph ph-x text-lg"></i>
+            </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto no-scrollbar flex-1 flex flex-col gap-6">
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Status da Mesa</label>
+                    <select id="sheet-status" class="w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50 transition-all appearance-none">
+                        <option value="livre">✓ Livre</option>
+                        <option value="negociacao">◐ Em Negociação</option>
+                        <option value="reservada">◆ Reservada</option>
+                        <option value="patrocinio">★ Patrocínio</option>
+                        <option value="bloqueada">✕ Bloqueada</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Responsável</label>
+                    <input type="text" id="sheet-identification"
+                        class="w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none placeholder-gray-600 transition-all"
+                        placeholder="Nome ou ID..." maxlength="50">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Observações</label>
+                    <textarea id="sheet-observation"
+                        class="w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none placeholder-gray-600 transition-all min-h-[80px] resize-none"
+                        placeholder="Anotações específicas para esta mesa..."></textarea>
+                </div>
+            </div>
+
+            <div id="financial-section" class="hidden flex-col gap-4 bg-gray-900/30 p-5 rounded-2xl border border-gray-800/50">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="ph ph-wallet text-xl text-[#c8a45a]"></i>
+                    <h4 class="text-sm font-bold text-white">Informações Financeiras</h4>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2 flex flex-col gap-2">
+                        <label class="text-[11px] text-gray-400 font-semibold uppercase">Vendedor(a)</label>
+                        <select id="sheet-seller" onchange="toggleSellerOther()" class="w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3 outline-none disabled:opacity-50 transition-all">
+                            <option value="">— Não informado</option>
+                            <option value="MAJ Tamara">MAJ Tamara</option>
+                            <option value="SGT Ferro">SGT Ferro</option>
+                            <option value="Outros">Outros...</option>
+                        </select>
+                        <input type="text" id="sheet-seller-other"
+                            class="hidden mt-2 w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3 outline-none transition-all"
+                            placeholder="Nome do vendedor..." maxlength="50">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] text-gray-400 font-semibold uppercase">Data Venda</label>
+                        <input type="date" id="sheet-sale-date" class="w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3 outline-none transition-all">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] text-red-400 font-bold uppercase">Falta Pagar</label>
+                        <input type="text" id="sheet-missing-amount"
+                            class="w-full bg-red-500/10 border border-red-500/30 text-red-100 text-sm rounded-xl p-3 outline-none placeholder-red-900 focus:ring-2 focus:ring-red-500 transition-all"
+                            placeholder="R$ 0,00" maxlength="20">
+                    </div>
+                    <div class="col-span-2 flex flex-col gap-2">
+                        <label class="text-[11px] text-gray-400 font-semibold uppercase">Tipo Pagamento</label>
+                        <select id="sheet-payment-method" onchange="togglePaymentFields()" class="w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3 outline-none disabled:opacity-50 transition-all">
+                            <option value="">— Não informado</option>
+                            <option value="avista">À Vista</option>
+                            <option value="pix">PIX</option>
+                            <option value="parcelado">Parcelado</option>
+                        </select>
+                    </div>
+                    <div id="installments-wrapper" class="hidden col-span-2 flex-col gap-4 border-t border-gray-700 pt-4 mt-2">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[11px] text-gray-400 font-semibold uppercase">Quantidade de Parcelas</label>
+                            <select id="sheet-installments-count" onchange="renderInstallmentFields()" class="w-full bg-[#121214] border border-gray-700 text-white text-sm rounded-xl p-3 outline-none disabled:opacity-50 transition-all">
+                                <option value="2">2x</option>
+                                <option value="3">3x</option>
+                                <option value="4">4x</option>
+                                <option value="5">5x</option>
+                                <option value="6">6x</option>
+                            </select>
+                        </div>
+                        <div id="installments-inputs-container" class="grid grid-cols-2 gap-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="ph ph-users-three text-xl text-[#c8a45a]"></i>
+                    <h4 class="text-sm font-bold text-white">Convidados (10 lugares)</h4>
+                </div>
+                <div class="flex flex-col gap-2.5" id="sheet-guests-list"></div>
+            </div>
+            <div class="h-6"></div>
+        </div>
+
+        <div class="p-4 border-t border-gray-800 bg-[#1c1c20] flex-shrink-0 flex gap-3">
+            <div id="view-actions" class="flex w-full gap-3">
+                <button onclick="showAuthModal()"
+                    class="gold-btn flex-1 py-3.5 rounded-xl text-sm font-bold flex justify-center items-center gap-2">
+                    <i class="ph ph-pencil-simple text-lg"></i> Editar
+                </button>
+            </div>
+            <div id="edit-actions" class="hidden w-full flex gap-3">
+                <button onclick="closeSheet()"
+                    class="w-1/3 bg-[#121214] border border-gray-700 text-gray-300 hover:text-white py-3.5 rounded-xl text-sm font-bold active:bg-gray-800 transition-all">
+                    Cancelar
+                </button>
+                <button id="save-btn" onclick="saveTableData()"
+                    class="w-2/3 bg-green-600 hover:bg-green-700 text-white py-3.5 rounded-xl text-sm font-bold active:bg-green-800 flex justify-center items-center gap-2 transition-all shadow-lg">
+                    <i class="ph ph-check-circle text-lg"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast fixed left-1/2 w-[90%] max-w-sm p-4 text-white bg-green-600 rounded-2xl shadow-2xl flex items-center gap-3">
+        <i class="ph ph-check-circle text-2xl flex-shrink-0"></i>
+        <div class="text-sm font-semibold">Salvo com sucesso!</div>
+    </div>
+
+    <script>
+        let mapCentered = false;
+        let currentZoom = 1;
+        const BASE_MAP_WIDTH = 1414;
+        const BASE_MAP_HEIGHT = 1000;
+
+        function changeZoom(delta) {
+            currentZoom += delta;
+            if (currentZoom > 2.5) currentZoom = 2.5;
+            if (currentZoom < 0.25) currentZoom = 0.25;
+            applyZoom();
+        }
+
+        function fitZoom() {
+            const container = document.getElementById('map-container');
+            if(!container) return;
+            
+            const fitScale = (container.clientWidth - 16) / BASE_MAP_WIDTH;
+            currentZoom = fitScale > 2.5 ? 2.5 : (fitScale < 0.25 ? 0.25 : fitScale);
+            applyZoom();
+
+            setTimeout(() => {
+                container.scrollTo({
+                    left: (container.scrollWidth - container.clientWidth) / 2,
+                    top: (container.scrollHeight - container.clientHeight) / 2,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+
+        function applyZoom() {
+            const target = document.getElementById('zoom-target');
+            const wrapper = document.getElementById('zoom-wrapper');
+            if(!target || !wrapper) return;
+            
+            target.style.transform = `scale(${currentZoom})`;
+            
+            wrapper.style.width = `${BASE_MAP_WIDTH * currentZoom}px`;
+            wrapper.style.height = `${BASE_MAP_HEIGHT * currentZoom}px`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const originalSwitchTab = window.switchTab;
+            
+            window.switchTab = function(tabName) {
+                if (typeof originalSwitchTab === 'function') {
+                    originalSwitchTab(tabName);
+                }
+                
+                if (tabName === 'map' && !mapCentered) {
+                    setTimeout(fitZoom, 50);
+                    mapCentered = true;
+                }
+            };
+
+            const mapContainer = document.getElementById('map-container');
+            let initialDistance = null;
+            let initialZoom = 1;
+
+            if(mapContainer) {
+                mapContainer.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 2) {
+                        e.preventDefault();
+                        const t1 = e.touches[0];
+                        const t2 = e.touches[1];
+                        initialDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+                        initialZoom = currentZoom;
+                    }
+                }, { passive: false });
+
+                mapContainer.addEventListener('touchmove', (e) => {
+                    if (e.touches.length === 2) {
+                        e.preventDefault();
+                        const t1 = e.touches[0];
+                        const t2 = e.touches[1];
+                        const currentDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+                        
+                        if (initialDistance) {
+                            const scale = currentDistance / initialDistance;
+                            let newZoom = initialZoom * scale;
+                            if (newZoom > 2.5) newZoom = 2.5;
+                            if (newZoom < 0.25) newZoom = 0.25;
+                            currentZoom = newZoom;
+                            applyZoom();
+                        }
+                    }
+                }, { passive: false });
+
+                mapContainer.addEventListener('touchend', (e) => {
+                    if (e.touches.length < 2) {
+                        initialDistance = null;
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
